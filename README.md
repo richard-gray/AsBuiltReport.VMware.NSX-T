@@ -48,7 +48,6 @@ The following PowerShell modules are required for generating a VMware NSX-T As B
 
 Each of these modules can be easily downloaded and installed via the PowerShell Gallery 
 
-- [VMware PowerCLI Module](https://www.powershellgallery.com/packages/VMware.PowerCLI/)
 - [AsBuiltReport.VMware.NSX-T Module](https://www.powershellgallery.com/packages/AsBuiltReport.VMware.NSX-T/)
 
 ### :closed_lock_with_key: Required Privileges

@@ -36,7 +36,7 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
             Write-PScriboMessage "Connecting to NSX-T Manager '$NsxManager'."
             Connect-NsxtServer -Server $nsxManager -Credential $Credential -ErrorAction Stop
         } catch {
-            Write-Error "Unable to connect to NSX-T Manager '$NsxManager'"
+            Write-Error "Unable to connect to NSX-T Manager '$NsxManager'."
             Write-Error $_
             Continue
         }
@@ -67,41 +67,118 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
         Section -Style Heading1 'NSX-T System' {
 
             try {
-                Section -Style Heading2 'NSX-T Manager Details' {
-                    Paragraph 'The following section provides a summary of the Manager Details.'
+                Section -Style Heading2 'NSX-T Manager' {
+                    Paragraph 'The following section details the configuration of the NSX-T managers.'
                     BlankLine
-                    Get-NSXTManager | Table -Name 'NSX-T Manager Details' -List
+                    $NsxtManagers = Get-NSXTManager | Sort-Object Name
+                    $NsxtManagerInfo = foreach ($NsxtManager in $NsxtManagers) {
+                        [PSCustomObject] @{
+                            'Name' = $NsxtManager.Name
+                            'ID' = $NsxtManager.Id
+                            'IP Address' = $NsxtManager.address
+                            'SHA256 Thumbprint' = $NsxtManager.SHA256Thumbprint 
+                        }
+                    }
+                    $TableParams = @{
+                        Name = 'NSX-T Managers'
+                        ColumnWidths = 25, 25, 25, 25 
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    } 
+                    $NsxtManagerInfo | Table @TableParams
                 }
             } catch {
                 Write-Error $_
             }
 
             try {
-                Section -Style Heading2 'NSX-T Controllers' {
-                    Paragraph 'The following section provides a summary of the configured Compute Managers.'
-                    BlankLine
-                    Get-NSXTController  | Table -Name 'NSX-T Controllers' -List
-                }
-            } catch {
-                Write-Error $_
-            }
-
-            try {
-                Section -Style Heading2 'NSX-T Compute Managers' {
-                    Paragraph 'The following section provides a summary of the configured Compute Managers.'
-                    BlankLine
-                    Get-NSXTComputeManager | Table -Name 'Compute Managers' -List
-                }
-            } catch {
-                Write-Error $_
-            }
-
-            try {
-                $EdgeClusters = Get-NSXTEdgeCluster
-                if ($EdgeClusters) {
-                    Section -Style Heading2 'NSX-T Edge Clusters' {
+                $NsxtControllers = Get-NSXTController | Sort-Object Name
+                if ($NsxtControllers) {
+                    Section -Style Heading2 'Controllers' {
+                        Paragraph 'The following section details the configuration of the NSX-T controllers.'
                         BlankLine
-                        $EdgeClusters  | Table -Name 'NSX-T Edge Clusters' -List
+                        $NsxtControllerInfo = foreach ($NsxtController in $NsxtControllers) {
+                            [PSCustomObject] @{
+                                'Name' = $NsxtController.Name
+                                'ID' = $NsxtController.Id
+                                'Cluster Status' = $TextInfo.ToTitleCase($NsxtController.ClusterStatus)
+                                'Version' = $NsxtController.Version
+                            }
+                        }
+                        $TableParams = @{
+                            Name = 'Controllers'
+                            ColumnWidths = 25, 25, 25, 25 
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        } 
+                        $NsxtControllerInfo | Table @TableParams
+                    }
+                }
+            } catch {
+                Write-Error $_
+            }
+
+            try {
+                $NsxtComputeManagers = Get-NSXTComputeManager | Sort-Object Name
+                if ($NsxtComputeManagers) {
+                    Section -Style Heading2 'Compute Managers' {
+                        Paragraph 'The following section details the configuration of the NSX-T compute managers.'
+                        BlankLine
+                        $NsxtComputeManagerInfo = foreach ($NsxtComputeManager in $NsxtComputeManagers) {
+                            [PSCustomObject] @{
+                                'Name' = $NsxtComputeManager.Name
+                                'ID' = $NsxtComputeManager.Id
+                                'Server' = $NsxtComputeManager.Server
+                                'Type' = $NsxtComputeManager.Type
+                                'Version' = $NsxtComputeManager.Version
+                                'Registration' = $TextInfo.ToTitleCase($NsxtComputeManager.Registration)
+                                'Connection' = $TextInfo.ToTitleCase($NsxtComputeManager.Connection)
+                            }
+                        }
+                        $TableParams = @{
+                            Name = 'Compute Managers'
+                            ColumnWidths = 20, 20, 20, 10, 10, 10, 10
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $NsxtComputeManagerInfo | Table @TableParams
+                    }
+                }
+            } catch {
+                Write-Error $_
+            }
+
+            try {
+                $NsxtEdgeClusters = Get-NSXTEdgeCluster | Sort-Object Name
+                if ($NsxtEdgeClusters) {
+                    Section -Style Heading2 'Edge Clusters' {
+                        Paragraph 'The following section details the configuration of the NSX-T edge clusters.'
+                        BlankLine
+                        $NsxtEdgeClusterInfo = foreach ($NsxtEdgeCluster in $NsxtEdgeClusters) {
+                            Section -Style Heading3 $($NsxtEdgeCluster.Name) {
+                                [PSCustomObject]@{
+                                    'Name' = $NsxtEdgeCluster.Name
+                                    'ID' = $NsxtEdgeCluster.Edge_Cluster_Id
+                                    'Resource Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Resource_Type)
+                                    'Deployment Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Deployment_Type).Replace('_',' ')
+                                    'Cluster Profile Bindings' = $NsxtEdgeCluster.Cluster_Profile_Bindings
+                                    'Member Node Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Member_Node_Type).Replace('_',' ')
+                                    'Members' = $NsxtEdgeCluster.Members
+                                }
+                            }
+                        }  
+                        $TableParams = @{
+                            Name = 'Edge Clusters'
+                            List = $true
+                            ColumnWidths = 50, 50
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $NsxtEdgeClusterInfo | Table @TableParams
                     }
                 }
             } catch {
@@ -123,20 +200,58 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
 
             try {
-                Section -Style Heading2 'NSX-T Transport Nodes' {
-                    Paragraph 'The following section provides a summary of the configured Transport Nodes.'
-                    BlankLine
-                    Get-NSXTTransportNode | Table -Name 'NSX-T Transport Nodes' -List
+                $NsxtTransportNodes = Get-NSXTTransportNode | Sort-Object Name
+                if ($NsxtTransportNodes)
+                    Section -Style Heading2 'Transport Nodes' {
+                        Paragraph 'The following section details the configuration of the NSX-T transport nodes.'
+                        BlankLine
+                        $NsxtTransportNodeInfo = foreach ($NsxtTransportNode in $NsxtTransportNodes) {
+                            [PSCustomObject] @{
+                                'Name' = $NsxtTransportNode.Name
+                                'ID' = $NsxtTransportNode.Transport_Node_Id
+                                'Maintenance Mode' = $TextInfo.ToTitleCase($NsxtTransportNode.Maintenance_Mode)
+                            }
+                        }
+                        $TableParams = @{
+                            Name = 'Transport Nodes'
+                            ColumnWidths = 33, 34, 33
+                        }
+                        if ($Report.ShowTableCaptions) {
+                            $TableParams['Caption'] = "- $($TableParams.Name)"
+                        }
+                        $NsxtTransportNodeInfo | Table @TableParams
+                    }
                 }
             } catch {
                 Write-Error $_
             }
 
             try {
-                Section -Style Heading2 'NSX-T Transport Zones' {
-                    Paragraph 'The following section provides a summary of the configured Transport Zones.'
+                Section -Style Heading2 'Transport Zones' {
+                    Paragraph 'The following section details the configuration of the NSX-T transport zones.'
                     BlankLine
-                    Get-NSXTTransportZone  | Table -Name 'NSX-T Transport Zones' -List
+                    $NsxtTransportZones = Get-NSXTTransportZone | Sort-Object Name
+                    $NsxtTransportZoneInfo = foreach ($NsxtTransportZone in $NsxtTransportZones) {
+                        Section -Style Heading3 $($NsxtTransportZone.Name) {
+                            [PSCustomObject] @{
+                                'Name' = $NsxtTransportZone.Name
+                                'ID' = $NsxtTransportZone.Id
+                                'Host Switch Name' = $NsxtTransportZone.Host_Switch_Name
+                                'Host Switch Mode' = $TextInfo.ToTitleCase($NsxtTransportZone.Host_Switch_Mode)
+                                'Resource Type' = $NsxtTransportZone.Resource_Type
+                                'Transport Type' = $TextInfo.ToTitleCase($NsxtTransportZone.Transport_Type)
+                            }
+                        }
+                    }
+                    $TableParams = @{
+                        Name = 'Transport Zones'
+                        List = $true
+                        ColumnWidths = 50, 50
+                    }
+                    if ($Report.ShowTableCaptions) {
+                        $TableParams['Caption'] = "- $($TableParams.Name)"
+                    }
+                    $NsxtTransportZoneInfo | Table @TableParams
                 }
             } catch {
                 Write-Error $_
