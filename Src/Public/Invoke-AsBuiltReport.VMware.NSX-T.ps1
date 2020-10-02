@@ -35,7 +35,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
         try {
             Write-PScriboMessage "Connecting to NSX-T Manager '$NsxManager'."
             Connect-NsxtServer -Server $nsxManager -Credential $Credential -ErrorAction Stop
-        } catch {
+        }
+        catch {
             Write-Error "Unable to connect to NSX-T Manager '$NsxManager'."
             Write-Error $_
             Continue
@@ -73,14 +74,14 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                     $NsxtManagers = Get-NSXTManager | Sort-Object Name
                     $NsxtManagerInfo = foreach ($NsxtManager in $NsxtManagers) {
                         [PSCustomObject] @{
-                            'Name' = $NsxtManager.Name
-                            'ID' = $NsxtManager.Id
-                            'IP Address' = $NsxtManager.address
+                            'Name'              = $NsxtManager.Name
+                            'ID'                = $NsxtManager.Id
+                            'IP Address'        = $NsxtManager.address
                             'SHA256 Thumbprint' = $NsxtManager.SHA256Thumbprint 
                         }
                     }
                     $TableParams = @{
-                        Name = 'NSX-T Managers'
+                        Name         = 'NSX-T Managers'
                         ColumnWidths = 25, 25, 25, 25 
                     }
                     if ($Report.ShowTableCaptions) {
@@ -88,7 +89,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                     } 
                     $NsxtManagerInfo | Table @TableParams
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -100,14 +102,14 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         BlankLine
                         $NsxtControllerInfo = foreach ($NsxtController in $NsxtControllers) {
                             [PSCustomObject] @{
-                                'Name' = $NsxtController.Name
-                                'ID' = $NsxtController.Id
+                                'Name'           = $NsxtController.Name
+                                'ID'             = $NsxtController.Id
                                 'Cluster Status' = $TextInfo.ToTitleCase($NsxtController.ClusterStatus)
-                                'Version' = $NsxtController.Version
+                                'Version'        = $NsxtController.Version
                             }
                         }
                         $TableParams = @{
-                            Name = 'Controllers'
+                            Name         = 'Controllers'
                             ColumnWidths = 25, 25, 25, 25 
                         }
                         if ($Report.ShowTableCaptions) {
@@ -116,7 +118,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $NsxtControllerInfo | Table @TableParams
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -128,17 +131,17 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         BlankLine
                         $NsxtComputeManagerInfo = foreach ($NsxtComputeManager in $NsxtComputeManagers) {
                             [PSCustomObject] @{
-                                'Name' = $NsxtComputeManager.Name
-                                'ID' = $NsxtComputeManager.Id
-                                'Server' = $NsxtComputeManager.Server
-                                'Type' = $NsxtComputeManager.Type
-                                'Version' = $NsxtComputeManager.Version
+                                'Name'         = $NsxtComputeManager.Name
+                                'ID'           = $NsxtComputeManager.Id
+                                'Server'       = $NsxtComputeManager.Server
+                                'Type'         = $NsxtComputeManager.Type
+                                'Version'      = $NsxtComputeManager.Version
                                 'Registration' = $TextInfo.ToTitleCase($NsxtComputeManager.Registration)
-                                'Connection' = $TextInfo.ToTitleCase($NsxtComputeManager.Connection)
+                                'Connection'   = $TextInfo.ToTitleCase($NsxtComputeManager.Connection)
                             }
                         }
                         $TableParams = @{
-                            Name = 'Compute Managers'
+                            Name         = 'Compute Managers'
                             ColumnWidths = 20, 20, 20, 10, 10, 10, 10
                         }
                         if ($Report.ShowTableCaptions) {
@@ -147,7 +150,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $NsxtComputeManagerInfo | Table @TableParams
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -160,19 +164,19 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $NsxtEdgeClusterInfo = foreach ($NsxtEdgeCluster in $NsxtEdgeClusters) {
                             Section -Style Heading3 $($NsxtEdgeCluster.Name) {
                                 [PSCustomObject]@{
-                                    'Name' = $NsxtEdgeCluster.Name
-                                    'ID' = $NsxtEdgeCluster.Edge_Cluster_Id
-                                    'Resource Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Resource_Type)
-                                    'Deployment Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Deployment_Type).Replace('_',' ')
+                                    'Name'                     = $NsxtEdgeCluster.Name
+                                    'ID'                       = $NsxtEdgeCluster.Edge_Cluster_Id
+                                    'Resource Type'            = $TextInfo.ToTitleCase($NsxtEdgeCluster.Resource_Type)
+                                    'Deployment Type'          = $TextInfo.ToTitleCase($NsxtEdgeCluster.Deployment_Type).Replace('_', ' ')
                                     'Cluster Profile Bindings' = $NsxtEdgeCluster.Cluster_Profile_Bindings
-                                    'Member Node Type' = $TextInfo.ToTitleCase($NsxtEdgeCluster.Member_Node_Type).Replace('_',' ')
-                                    'Members' = $NsxtEdgeCluster.Members
+                                    'Member Node Type'         = $TextInfo.ToTitleCase($NsxtEdgeCluster.Member_Node_Type).Replace('_', ' ')
+                                    'Members'                  = $NsxtEdgeCluster.Members
                                 }
                             }
                         }  
                         $TableParams = @{
-                            Name = 'Edge Clusters'
-                            List = $true
+                            Name         = 'Edge Clusters'
+                            List         = $true
                             ColumnWidths = 50, 50
                         }
                         if ($Report.ShowTableCaptions) {
@@ -181,7 +185,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $NsxtEdgeClusterInfo | Table @TableParams
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -201,19 +206,19 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
             try {
                 $NsxtTransportNodes = Get-NSXTTransportNode | Sort-Object Name
-                if ($NsxtTransportNodes)
+                if ($NsxtTransportNodes) {
                     Section -Style Heading2 'Transport Nodes' {
                         Paragraph 'The following section details the configuration of the NSX-T transport nodes.'
                         BlankLine
                         $NsxtTransportNodeInfo = foreach ($NsxtTransportNode in $NsxtTransportNodes) {
                             [PSCustomObject] @{
-                                'Name' = $NsxtTransportNode.Name
-                                'ID' = $NsxtTransportNode.Transport_Node_Id
+                                'Name'             = $NsxtTransportNode.Name
+                                'ID'               = $NsxtTransportNode.Transport_Node_Id
                                 'Maintenance Mode' = $TextInfo.ToTitleCase($NsxtTransportNode.Maintenance_Mode)
                             }
                         }
                         $TableParams = @{
-                            Name = 'Transport Nodes'
+                            Name         = 'Transport Nodes'
                             ColumnWidths = 33, 34, 33
                         }
                         if ($Report.ShowTableCaptions) {
@@ -222,7 +227,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $NsxtTransportNodeInfo | Table @TableParams
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -234,18 +240,18 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                     $NsxtTransportZoneInfo = foreach ($NsxtTransportZone in $NsxtTransportZones) {
                         Section -Style Heading3 $($NsxtTransportZone.Name) {
                             [PSCustomObject] @{
-                                'Name' = $NsxtTransportZone.Name
-                                'ID' = $NsxtTransportZone.Id
+                                'Name'             = $NsxtTransportZone.Name
+                                'ID'               = $NsxtTransportZone.Id
                                 'Host Switch Name' = $NsxtTransportZone.Host_Switch_Name
                                 'Host Switch Mode' = $TextInfo.ToTitleCase($NsxtTransportZone.Host_Switch_Mode)
-                                'Resource Type' = $NsxtTransportZone.Resource_Type
-                                'Transport Type' = $TextInfo.ToTitleCase($NsxtTransportZone.Transport_Type)
+                                'Resource Type'    = $NsxtTransportZone.Resource_Type
+                                'Transport Type'   = $TextInfo.ToTitleCase($NsxtTransportZone.Transport_Type)
                             }
                         }
                     }
                     $TableParams = @{
-                        Name = 'Transport Zones'
-                        List = $true
+                        Name         = 'Transport Zones'
+                        List         = $true
                         ColumnWidths = 50, 50
                     }
                     if ($Report.ShowTableCaptions) {
@@ -253,7 +259,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                     }
                     $NsxtTransportZoneInfo | Table @TableParams
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -265,9 +272,10 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                 Section -Style Heading2 'NSX-T Logical Switches' {
                     Paragraph 'The following section provides a summary of the configured Logical Switches.'
                     BlankLine
-                    Get-NSXTLogicalSwitch  | Table -Name 'NSX-T Logical Switches' -List
+                    Get-NSXTLogicalSwitch | Table -Name 'NSX-T Logical Switches' -List
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -279,8 +287,7 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         Paragraph 'The following section provides details about the configured logical routers.'
                         BlankLine
 
-                        foreach ($RouterInfo in $LR)
-                        {
+                        foreach ($RouterInfo in $LR) {
                             Section -Style Heading3 "Router: $($RouterInfo.Name)" {
                                 Paragraph 'The following section provides more details about the logical router.'
                                 BlankLine
@@ -290,8 +297,7 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                                 ### INTERFACES ###
                                 try {
                                     $interfaces = Get-NSXTLogicalRouterPorts -logical_router_id $RouterInfo.Logical_router_id
-                                    if($interfaces)
-                                    {
+                                    if ($interfaces) {
                                         Section -Style Heading4 'Interfaces' {
                                             Paragraph 'The following section provides a summary of the configured interfaces.'
                                             BlankLine
@@ -300,48 +306,47 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
                                         BlankLine
                                     }
-                                } catch {
+                                }
+                                catch {
                                     Write-Error $_
                                 }
 
                                 ### BGP - Only on TIER0s ###
-                                if($RouterInfo.router_type -eq "TIER0")
-                                {
+                                if ($RouterInfo.router_type -eq "TIER0") {
                                     # Redistribution config
                                     try {
                                         $redist_status = Get-NSXTRedistributionStatus -logical_router_id $RouterInfo.Logical_router_id
-                                        if($redist_status)
-                                        {
+                                        if ($redist_status) {
                                             Section -Style Heading4 'BGP Redistribution Status' {
                                                 $redist_status | Table -Name 'BGP Redistribution Status' -List
                                             }
 
                                             BlankLine
                                         }
-                                    } catch {
+                                    }
+                                    catch {
                                         Write-Error $_
                                     }
 
                                     # Redistribution rules
                                     try {
                                         $redist_rules = Get-NSXTRedistributionRule -logical_router_id $RouterInfo.Logical_router_id
-                                        if($redist_rules)
-                                        {
+                                        if ($redist_rules) {
                                             Section -Style Heading4 'BGP Redistribution Rules' {
                                                 $redist_rules | Table -Name 'BGP Redistribution Rules' -List
                                             }
 
                                             BlankLine
                                         }
-                                    } catch {
+                                    }
+                                    catch {
                                         Write-Error $_
                                     }
 
                                     # Neighbhors
                                     try {
                                         $bgp = Get-NSXTBGPNeighbors -logical_router_id $RouterInfo.Logical_router_id
-                                        if($bgp)
-                                        {
+                                        if ($bgp) {
                                             Section -Style Heading4 'BGP Neighbors' {
                                                 Paragraph 'The following section provides a summary of the configured BGP neighbors.'
                                                 BlankLine
@@ -350,42 +355,42 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
                                             BlankLine
                                         }
-                                    } catch {
+                                    }
+                                    catch {
                                         Write-Error $_
                                     }
                                 } # end if($RouterInfo.router_type -eq "TIER0")
 
 
                                 ### Advertisement rules - Only on TIER1s ###
-                                if($RouterInfo.router_type -eq "TIER1")
-                                {
+                                if ($RouterInfo.router_type -eq "TIER1") {
                                     # Advertisement config
                                     try {
                                         $adver_status = Get-NSXTAdvertisementStatus -logical_router_id $RouterInfo.Logical_router_id
-                                        if($adver_status)
-                                        {
+                                        if ($adver_status) {
                                             Section -Style Heading4 'Advertisement Status' {
                                                 $adver_status | Table -Name 'Advertisement Status' -List
                                             }
 
                                             BlankLine
                                         }
-                                    } catch {
+                                    }
+                                    catch {
                                         Write-Error $_
                                     }
 
                                     # Advertisement rules
                                     try {
                                         $adver_rules = Get-NSXTAdvertisementRule -logical_router_id $RouterInfo.Logical_router_id
-                                        if($adver_rules)
-                                        {
+                                        if ($adver_rules) {
                                             Section -Style Heading4 'Advertisement Rules' {
                                                 $adver_rules | Table -Name 'Advertisement Rules' -List
                                             }
 
                                             BlankLine
                                         }
-                                    } catch {
+                                    }
+                                    catch {
                                         Write-Error $_
                                     }
                                 } # end if($RouterInfo.router_type -eq "TIER1")
@@ -393,8 +398,7 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                                 ### Static Routes ###
                                 try {
                                     $static = Get-NSXTStaticRoute -logical_router_id $RouterInfo.Logical_router_id
-                                    if($static)
-                                    {
+                                    if ($static) {
                                         Section -Style Heading4 'Static Routes' {
                                             Paragraph 'The following section provides a summary of the configured static routes.'
                                             BlankLine
@@ -403,15 +407,15 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
                                         BlankLine
                                     }
-                                } catch {
+                                }
+                                catch {
                                     Write-Error $_
                                 }
 
                                 ### NAT ####
                                 try {
                                     $nat = Get-NSXTNATRule -logical_router_id $RouterInfo.Logical_router_id
-                                    if($nat)
-                                    {
+                                    if ($nat) {
                                         Section -Style Heading4 'NAT Rules' {
                                             Paragraph 'The following section provides a summary of the configured NAT rules.'
                                             BlankLine
@@ -420,7 +424,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
 
                                         BlankLine
                                     }
-                                } catch {
+                                }
+                                catch {
                                     Write-Error $_
                                 }
 
@@ -429,7 +434,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         }
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -437,9 +443,10 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                 Section -Style Heading2 'NSX-T Network Routes' {
                     Paragraph 'The following section provides a summary of the configured Network Routes.'
                     BlankLine
-                    Get-NSXTNetworkRoutes  | Table -Name 'NSX-T Network Routes' -List
+                    Get-NSXTNetworkRoutes | Table -Name 'NSX-T Network Routes' -List
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -451,9 +458,10 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                 Section -Style Heading2 'NSX-T Distributed Firewall Rules' {
                     Paragraph 'The following section provides a summary of the configured Compute Managers.'
                     BlankLine
-                    Get-NSXTFirewallRule  | Table -Name 'NSX-T Distributed Firewall Rules' -List
+                    Get-NSXTFirewallRule | Table -Name 'NSX-T Distributed Firewall Rules' -List
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -471,7 +479,8 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                         $IPAMBlock | Table -Name 'NSX-T IPAM Block' -List
                     }
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
@@ -479,9 +488,10 @@ function Invoke-AsBuiltReport.VMware.NSX-T {
                 Section -Style Heading2 'NSX-T IP Pool' {
                     Paragraph 'The following section provides a summary of the configured Compute Managers.'
                     BlankLine
-                    Get-NSXTIPPool  | Table -Name 'NSX-T IP Pool' -List
+                    Get-NSXTIPPool | Table -Name 'NSX-T IP Pool' -List
                 }
-            } catch {
+            }
+            catch {
                 Write-Error $_
             }
 
